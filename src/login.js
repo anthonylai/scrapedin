@@ -22,10 +22,15 @@ module.exports = async (browser, email, password) => {
     })
     .then(async () => {
       logger.info('login', 'logged feed page selector found')
+      console.log('saving screenshot')
+      await page.screenshot({path: 'public/login.png'})
       await page.close()
     })
     .catch(async () => {
       logger.warn('login', 'successful login element was not found')
+      console.log('saving screenshot');
+      await page.screenshot({path: 'public/error.png'});
+
       const emailError = await page.evaluate(() => {
         const e = document.querySelector('div[error-for=username]')
         if (!e) { return false }
