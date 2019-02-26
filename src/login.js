@@ -19,14 +19,14 @@ module.exports = async (browser, email, password, challenge) => {
         console.log('here');
         for (var i=0, max=all.length; i < max; i++) {
              // Do something with the element here
-             nodes.push({ id: all[i].id, name: all[i].name })
+             nodes.push({ inputId: all[i].id, name: all[i].name })
              // nodes.concat(getNodes(all[i]))
         }
         all = element.getElementsByTagName("button")
         console.log('here1');
         for (var i=0, max=all.length; i < max; i++) {
              // Do something with the element here
-             nodes.push({ id: all[i].id, name: all[i].name })
+             nodes.push({ buttonId: all[i].id, name: all[i].name })
              // nodes.concat(getNodes(all[i]))
         }
         return nodes
@@ -93,8 +93,8 @@ module.exports = async (browser, email, password, challenge) => {
 
       if (page.$(manualChallengeRequested)) {
         logger.warn('login', 'manual check was required')
-        await page.$('#input__email_verification_pin')
-          .then((challengeElement) => challengeElement.type(password))
+        const challengeElement = await page.$('#input__email_verification_pin')
+        await challengeElement.type(email))
         await debug('error')
 
 
