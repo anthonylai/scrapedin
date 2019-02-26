@@ -22,6 +22,13 @@ module.exports = async (browser, email, password, challenge) => {
              nodes.push({ id: all[i].id, name: all[i].name })
              // nodes.concat(getNodes(all[i]))
         }
+        all = element.getElementsByTagName("button")
+        console.log('here1');
+        for (var i=0, max=all.length; i < max; i++) {
+             // Do something with the element here
+             nodes.push({ id: all[i].id, name: all[i].name })
+             // nodes.concat(getNodes(all[i]))
+        }
         return nodes
       }
 
@@ -39,7 +46,6 @@ module.exports = async (browser, email, password, challenge) => {
     .then((emailElement) => emailElement.type(email))
   await page.$('#login-password')
     .then((passwordElement) => passwordElement.type(password))
-
   await page.$('#login-submit')
     .then((button) => button.click())
 
@@ -53,7 +59,6 @@ module.exports = async (browser, email, password, challenge) => {
     })
     .catch(async () => {
       logger.warn('login', 'successful login element was not found')
-      await debug('error')
 
       const emailError = await page.evaluate(() => {
         const e = document.querySelector('div[error-for=username]')
@@ -88,6 +93,10 @@ module.exports = async (browser, email, password, challenge) => {
 
       if (page.$(manualChallengeRequested)) {
         logger.warn('login', 'manual check was required')
+        await page.$('#input__email_verification_pin')
+          .then((challengeElement) => challengeElement.type(password))
+        await debug('error')
+
 
         // return Promise.reject(new Error('linkedin: manual check was required, verify if your login is properly working manually or report this issue: https://github.com/leonardiwagner/scrapedin/issues'))
       }
