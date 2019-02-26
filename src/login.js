@@ -103,9 +103,18 @@ module.exports = async (browser, email, password, challenge) => {
         const challengeElement = await page.$('#input__email_verification_pin')
         await challengeElement.type('511757')
         await debug('error')
-        await page.$eval('form-selector', form => form.submit());
-        await debug('error')
-
+        // await page.$eval('form-selector', form => form.submit());
+        await page.$('#login-submit')
+          .then((button) => button.click())
+        await debug('error1')
+        return page.waitFor('input[role=combobox]', {
+          timeout: 15000
+          })
+          .then(async () => {
+            logger.info('login', 'logged feed page selector found')
+            await debug('login')
+            await page.close()
+          })
 
         // return Promise.reject(new Error('linkedin: manual check was required, verify if your login is properly working manually or report this issue: https://github.com/leonardiwagner/scrapedin/issues'))
       }
