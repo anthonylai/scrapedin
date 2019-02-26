@@ -52,6 +52,8 @@ module.exports = async (browser, email, password) => {
   await page.$('#login-password')
     .then((passwordElement) => passwordElement.type(password))
 
+  await debug('login0');
+
   await page.$('#login-submit')
     .then((button) => button.click())
 
@@ -60,11 +62,11 @@ module.exports = async (browser, email, password) => {
     })
     .then(async () => {
       logger.info('login', 'logged feed page selector found')
-      await debug('login');
+      await debug('login1');
       await page.close()
     })
     .catch(async () => {
-      await debug('login0');
+      await debug('error0');
       logger.warn('login', 'successful login element was not found')
       const emailError = await page.evaluate(() => {
         const e = document.querySelector('div[error-for=username]')
