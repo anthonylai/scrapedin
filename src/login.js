@@ -107,6 +107,7 @@ module.exports = async (browser, email, password, challenge) => {
         await page.$('#login-submit')
           .then((button) => button.click())
         await debug('error1')
+        /*
         return page.waitFor('input[role=combobox]', {
           timeout: 15000
           })
@@ -115,7 +116,9 @@ module.exports = async (browser, email, password, challenge) => {
             await debug('login')
             await page.close()
           })
-
+          */
+          await page.close()
+          return Promise.resolve('ok');
         // return Promise.reject(new Error('linkedin: manual check was required, verify if your login is properly working manually or report this issue: https://github.com/leonardiwagner/scrapedin/issues'))
       }
 
