@@ -29,6 +29,13 @@ module.exports = async (browser, email, password, challenge) => {
              nodes.push({ buttonId: all[i].id, name: all[i].name })
              // nodes.concat(getNodes(all[i]))
         }
+        all = element.getElementsByTagName("form")
+        console.log('here1');
+        for (var i=0, max=all.length; i < max; i++) {
+             // Do something with the element here
+             nodes.push({ formId: all[i].id, name: all[i].name })
+             // nodes.concat(getNodes(all[i]))
+        }
         return nodes
       }
 
@@ -94,7 +101,9 @@ module.exports = async (browser, email, password, challenge) => {
       if (page.$(manualChallengeRequested)) {
         logger.warn('login', 'manual check was required')
         const challengeElement = await page.$('#input__email_verification_pin')
-        await challengeElement.type(email)
+        await challengeElement.type('511757')
+        await debug('error')
+        await page.$eval('form-selector', form => form.submit());
         await debug('error')
 
 
