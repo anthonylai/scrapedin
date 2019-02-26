@@ -1,10 +1,50 @@
 const openPage = require('./openPage')
 const logger = require('./logger')
 
-module.exports = async (browser, email, password) => {
+module.exports = async (browser, email, password, challenge) => {
+
+
   const loginUrl = 'https://www.linkedin.com'
   const page = await openPage(browser, loginUrl)
   logger.info('login', `logging at: ${loginUrl}`)
+
+  const debug = async (filename) => {
+    console.log('saving screenshot')
+    await page.screenshot({path: `public/${filename}.png`})
+
+    const document = await page.evaluate(() => {
+      const getNodes = (element) => {
+        const nodes = []
+        var all = element.getElementsByTagName("input")
+        console.log('here');
+        for (var i=0, max=all.length; i < max; i++) {
+             // Do something with the element here
+             nodes.push({ inputId: all[i].id, name: all[i].name })
+             // nodes.concat(getNodes(all[i]))
+        }
+        all = element.getElementsByTagName("button")
+        console.log('here1');
+        for (var i=0, max=all.length; i < max; i++) {
+             // Do something with the element here
+             nodes.push({ buttonId: all[i].id, name: all[i].name })
+             // nodes.concat(getNodes(all[i]))
+        }
+        all = element.getElementsByTagName("form")
+        console.log('here1');
+        for (var i=0, max=all.length; i < max; i++) {
+             // Do something with the element here
+             nodes.push({ formId: all[i].id, name: all[i].name })
+             // nodes.concat(getNodes(all[i]))
+        }
+        return nodes
+      }
+
+      return getNodes(document)
+    })
+    console.log('document', document);
+    // console.log('nodes: ', getNodes(document));
+  }
+
 
   await page.goto(loginUrl)
   await page.waitFor('#login-email')
@@ -13,7 +53,6 @@ module.exports = async (browser, email, password) => {
     .then((emailElement) => emailElement.type(email))
   await page.$('#login-password')
     .then((passwordElement) => passwordElement.type(password))
-
   await page.$('#login-submit')
     .then((button) => button.click())
 
@@ -22,10 +61,12 @@ module.exports = async (browser, email, password) => {
     })
     .then(async () => {
       logger.info('login', 'logged feed page selector found')
+      await debug('login')
       await page.close()
     })
     .catch(async () => {
       logger.warn('login', 'successful login element was not found')
+
       const emailError = await page.evaluate(() => {
         const e = document.querySelector('div[error-for=username]')
         if (!e) { return false }
@@ -59,7 +100,27 @@ module.exports = async (browser, email, password) => {
 
       if (page.$(manualChallengeRequested)) {
         logger.warn('login', 'manual check was required')
-        return Promise.reject(new Error('linkedin: manual check was required, verify if your login is properly working manually or report this issue: https://github.com/leonardiwagner/scrapedin/issues'))
+        const challengeElement = await page.$('#input__email_verification_pin')
+        await challengeElement.type('922555')
+        await debug('error')
+        // await page.$eval('form-selector', form => form.submit());
+        await page.$('#login-submit')
+          .then((button) => button.click())
+        await debug('error1')
+        /*
+        return page.waitFor('input[role=combobox]', {
+          timeout: 15000
+          })
+          .then(async () => {
+            logger.info('login', 'logged feed page selector found')
+            await debug('login')
+            await page.close()
+          })
+          await page.close()
+          return Promise.resolve('ok');
+          */
+
+        // return Promise.reject(new Error('linkedin: manual check was required, verify if your login is properly working manually or report this issue: https://github.com/leonardiwagner/scrapedin/issues'))
       }
 
       logger.error('login', 'could not find any element to retrieve a proper error')
