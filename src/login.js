@@ -94,7 +94,7 @@ module.exports = async (browser, email, password, challenge) => {
       if (page.$(manualChallengeRequested)) {
         logger.warn('login', 'manual check was required')
         const challengeElement = await page.$('#input__email_verification_pin')
-        await challengeElement.type(email))
+        await challengeElement.type(email)
         await debug('error')
 
 
