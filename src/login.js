@@ -1,10 +1,36 @@
 const openPage = require('./openPage')
 const logger = require('./logger')
 
-module.exports = async (browser, email, password) => {
+module.exports = async (browser, email, password, challenge) => {
+
+
   const loginUrl = 'https://www.linkedin.com'
   const page = await openPage(browser, loginUrl)
   logger.info('login', `logging at: ${loginUrl}`)
+
+  const debug = async (filename) => {
+    console.log('saving screenshot')
+    await page.screenshot({path: `public/${filename}.png`})
+
+    const document = await page.evaluate(() => {
+      const getNodes = (element) => {
+        const nodes = []
+        var all = element.getElementsByTagName("input")
+        console.log('here');
+        for (var i=0, max=all.length; i < max; i++) {
+             // Do something with the element here
+             nodes.push({ id: all[i].id, name: all[i].name })
+             // nodes.concat(getNodes(all[i]))
+        }
+        return nodes
+      }
+
+      return getNodes(document)
+    })
+    console.log('document', document);
+    // console.log('nodes: ', getNodes(document));
+  }
+
 
   await page.goto(loginUrl)
   await page.waitFor('#login-email')
@@ -22,14 +48,12 @@ module.exports = async (browser, email, password) => {
     })
     .then(async () => {
       logger.info('login', 'logged feed page selector found')
-      console.log('saving screenshot')
-      await page.screenshot({path: 'public/login.png'})
+      await debug('login')
       await page.close()
     })
     .catch(async () => {
       logger.warn('login', 'successful login element was not found')
-      console.log('saving screenshot');
-      await page.screenshot({path: 'public/error.png'});
+      await debug('error')
 
       const emailError = await page.evaluate(() => {
         const e = document.querySelector('div[error-for=username]')
@@ -64,7 +88,8 @@ module.exports = async (browser, email, password) => {
 
       if (page.$(manualChallengeRequested)) {
         logger.warn('login', 'manual check was required')
-        return Promise.reject(new Error('linkedin: manual check was required, verify if your login is properly working manually or report this issue: https://github.com/leonardiwagner/scrapedin/issues'))
+
+        // return Promise.reject(new Error('linkedin: manual check was required, verify if your login is properly working manually or report this issue: https://github.com/leonardiwagner/scrapedin/issues'))
       }
 
       logger.error('login', 'could not find any element to retrieve a proper error')
