@@ -1,7 +1,7 @@
 const openPage = require('./openPage')
 const logger = require('./logger')
 
-module.exports = async (browser, email, password) => {
+module.exports = async (browser, email, password, challenge) => {
   const loginUrl = 'https://www.linkedin.com'
   const page = await openPage(browser, loginUrl)
   logger.info('login', `logging at: ${loginUrl}`)
@@ -102,7 +102,24 @@ module.exports = async (browser, email, password) => {
 
       if (page.$(manualChallengeRequested)) {
         logger.warn('login', 'manual check was required')
-        return Promise.reject(new Error('linkedin: manual check was required, verify if your login is properly working manually or report this issue: https://github.com/leonardiwagner/scrapedin/issues'))
+        await page.$('#input__email_verification_pin')
+          .then((challengeElement) => challengeElement.type(challenge))
+        await page.$('#email-pin-submit-button')
+          .then((button) => button.click())
+        return page.waitFor('input[role=combobox]', {
+          timeout: 15000
+          })
+          .then(async () => {
+            logger.info('login', 'logged feed page selector found')
+            await debug('error1')
+            await page.close()
+          })
+          .catch(async () => {
+            await debug('error2')
+            return Promise.reject(new Error('linkedin: manual check was required, verify if your login is properly working manually or report this issue: https://github.com/leonardiwagner/scrapedin/issues'))
+          })
+        // await page.$eval('email-pin-challenge', form => form.submit())
+        // return Promise.reject(new Error('linkedin: manual check was required, verify if your login is properly working manually or report this issue: https://github.com/leonardiwagner/scrapedin/issues'))
       }
 
       logger.error('login', 'could not find any element to retrieve a proper error')
