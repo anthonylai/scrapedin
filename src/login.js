@@ -104,6 +104,7 @@ module.exports = async (browser, email, password, challenge) => {
         logger.warn('login', 'manual check was required')
         await page.$('#input__email_verification_pin')
           .then((challengeElement) => challengeElement.type(challenge))
+        await debug('error1')
         await page.$('#email-pin-submit-button')
           .then((button) => button.click())
         return page.waitFor('input[role=combobox]', {
@@ -111,7 +112,7 @@ module.exports = async (browser, email, password, challenge) => {
           })
           .then(async () => {
             logger.info('login', 'logged feed page selector found')
-            await debug('error1')
+            await debug('login2')
             await page.close()
           })
           .catch(async () => {
