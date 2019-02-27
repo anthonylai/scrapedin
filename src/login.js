@@ -7,7 +7,7 @@ module.exports = async (browser, email, password) => {
   logger.info('login', `logging at: ${loginUrl}`)
 
   const debug = async (filename) => {
-    console.log('saving screenshot')
+    console.log('saving screenshot', filename)
     await page.screenshot({path: `public/${filename}.png`})
 
     const document = await page.evaluate(() => {
@@ -53,7 +53,8 @@ module.exports = async (browser, email, password) => {
     .then((passwordElement) => passwordElement.type(password))
 
   await debug('login0');
-
+  console.log('email', email);
+  console.log('password', password);
   await page.$('#login-submit')
     .then((button) => button.click())
 
