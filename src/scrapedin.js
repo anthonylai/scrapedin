@@ -3,7 +3,7 @@ const login = require('./login')
 const profile = require('./profile')
 const logger = require('./logger')
 
-module.exports = ({ email, password, isHeadless, hasToLog, proxyAddress } = { isHeadless: true, hasToLog: false }) => new Promise(async (resolve, reject) => {
+module.exports = ({ email, password, isHeadless, hasToLog, proxyAddress, challenge } = { isHeadless: true, hasToLog: false }) => new Promise(async (resolve, reject) => {
   if (!hasToLog) {
     logger.stopLogging()
   }
@@ -21,7 +21,7 @@ module.exports = ({ email, password, isHeadless, hasToLog, proxyAddress } = { is
   const browser = await puppeteer.launch({ headless: isHeadless, args })
 
   try {
-    await login(browser, email, password, logger)
+    await login(browser, email, password, challenge)
   } catch (e) {
     await browser.close()
     return reject(e)
